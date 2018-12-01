@@ -6,7 +6,15 @@ title: Jeonghun Yoon
 <div class="blurb">
     <h1>Jeonghun Yoon</h1>
     <p>
-    <em>Machine learning engineer & Data scientist</em>
-    (<a href="https://github.com/jeonghunyoon">Github </a>, <a href="https://www.linkedin.com/in/jeonghun-yoon-06173356/">LinkedIn</a>)
+        <em>Machine learning engineer & Data scientist</em>
+        (<a href="https://github.com/jeonghunyoon">Github </a>, <a
+            href="https://www.linkedin.com/in/jeonghun-yoon-06173356/">LinkedIn</a>)
     </p>
+
+    <ul class="posts">
+        {% for post in site.posts %}
+        <li><em><a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></em>></li>
+        {% endfor %}
+    </ul>
+
 </div>
