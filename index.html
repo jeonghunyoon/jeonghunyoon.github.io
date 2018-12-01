@@ -12,8 +12,8 @@ title: Jeonghun Yoon
     </p>
 
     <ul class="posts">
-        {% for key, post in site.posts %}
-        <li>{{ key }} : <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></li>
+        {% for post in site.posts %}
+        <li><a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></li>
         {% endfor %}
     </ul>
 
