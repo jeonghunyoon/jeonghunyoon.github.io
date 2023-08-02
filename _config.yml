@@ -1,3 +1,9 @@
 name: Jeonghun Yoon
-markdown: kramdown
+#markdown: kramdown
 permalink: /blog/:year/:month/:day/:title
+
+markdown: kramdown
+highlighter: rouge
+lsi: false
+excerpt_separator: "\n\n"
+incremental: false
