@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>논문제목 : Recommender Systems with Generative Retrieval - Tech Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/assets/css/style.css">
+
+    <!-- MathJax 설정 -->
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+</head>
+<body>
+<header>
+    <h1><a href="/">Tech Blog</a></h1>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about.html">About</a></li>
+        </ul>
+    </nav>
+</header>
+
+<div class="container">
+    <article>
+  <h1>논문제목 : Recommender Systems with Generative Retrieval</h1>
+  <p class="post-date">2025-03-05</p>
+  <h1 id="tiger">TIGER</h1>
+
+<h2 id="1-풀려고-하는-문제">1. 풀려고 하는 문제</h2>
+
+<ul>
+  <li>추천 시스템에서 사용되는 검색(retrieval) 방식을 새로운 생성적 검색(Generative Retrieval) 방식으로 대체</li>
+</ul>
+
+<h2 id="2-기존-연구의-문제점">2. 기존 연구의 문제점</h2>
+
+<p>현대 추천 시스템은 일반적으로 사용자 쿼리와 후보 아이템을 동일한 임베딩 공간에 매핑한 후, ANN 검색을 통해 유사한 아이템을 찾는 이중 단계 접근법을 활용한다. 이러한 방식은 효과적이지만 다음과 같은 문제점이 있다.</p>
+
+<ul>
+  <li>계산 비용이 크고 두 단계가 분리되어 있어 전체적인 최적화에 한계가 있다.</li>
+  <li>각 아이템에 임의로 할당된 ID를 사용함으로써 아이템 간의 의미론적 관계를 충분히 활용하지 못한다.</li>
+  <li>콜드 스타트 문제에서 어려움을 겪는다.</li>
+</ul>
+
+<h2 id="3-핵심-아이디어">3. 핵심 아이디어</h2>
+
+<p>TIGER는 각 아이템에 대해 해당 아이템의 콘텐츠 특성을 기반으로 의미론적으로 풍부한 “Semantic ID”를 생성하고, 이를 추천 시스템의 입력 및 출력으로 사용한다. 이를 통해 아이템 간의 의미론적 관계를 포착하고, 단일 관계 생성 프로세스를 통해 효율성을 증가시키며, 콜드 스타트 문제를 완화한다.</p>
+
+<h2 id="4-tiger-프레임워크-분석">4. TIGER 프레임워크 분석</h2>
+
+<h3 id="41-semantic-id-생성">4.1 Semantic ID 생성</h3>
+
+<p>Semantic ID는 아이템의 콘텐츠 특성(제목, 브랜드, 설명 등)을 기반으로 생성된 의미론적으로 풍부한 codewords 집합이다.</p>
+
+<ol>
+  <li>아이템의 콘텐츠 특성을 Sentence-T5와 같은 사전 훈련된 텍스트 인코더를 사용하여 임베딩으로 변환한다. 즉, 입력 아이템 $x$를 인코더 $E(\cdot)$를 통해 잠재 표현 $z$로 변환한다 :</li>
+</ol>
+
+\[z=E(x)\]
+
+<ol>
+  <li>이 임베딩을 Residual-Quantized Variational AutoEncoder(RQ-VAE)를 통해 codewords 집합으로 양자화한다. 초기 잔차(residual)를 $r_0:=z$로 정의하고, 각 단계 $d$에서 codebook $C_d:={e_k}_{k=1}^{K}$의 가장 가까운 임베딩을 찾아 잔차를 업데이트한다. $K$는 codebook size이다  :</li>
+</ol>
+
+\[c_d=\arg \min _k\left\|r_d-e_k\right\|^2 \\ r_{d+1}=r_d-e_{c_d} \text{  where } e_{c_d} \text{ is the closest embedding.}\]
+
+<ol>
+  <li>이 과정을 $m$번 반복하여 최종적으로 $m$개의 codewords로 구성된 Semantic ID $(c_0,c_1,…,c_{m-1})$를 생성한다.</li>
+</ol>
+
+<p>RQ-VAE를 사용하는 주요 장점은 잔차 양자화를 통해 원본 임베딩을 더 정확하게 근사할 수 있고, codewords 집합이 아이템 간의 의미론적 관계를 포착할 수 있으며, 새로운 아이템에 대해서도 콘텐츠 특성만 있으면 Sementic ID를 생성할 수 있어 콜드 스타트 문제를 완화할 수 있다는 점이다.</p>
+
+<h3 id="42-생성형-검색-모델">4.2 생성형 검색 모델</h3>
+
+<p>Transformer 기반 seq-to-seq 모델을 사용한 생성형 검색이다.</p>
+
+<ol>
+  <li>각 사용자의 상호작용 sequence를 시간순으로 정렬하고, 각 아이템을 해당 Semantic ID로 변환한다. 즉 item sequence $(\text{item}_ 1, \text{item}_ 2, \ldots, \text{item}_ n)$는 Semantic ID sequence $\left( c_{1,0}, \ldots, c_{1,m-1}, c_{2,0}, \ldots, c_{2,m-1}, \ldots, c_{n,0}, \ldots, c_{n,m-1} \right)$로 변환된다.</li>
+  <li>이 Sementic ID sequence를 Transformer 인코더의 입력으로 사용하여 문맥화된 표현을 생성한다.</li>
+  <li>Transformer 디코더는 인코더의 출력을 기반으로 다음 아이템의 Semantic ID를 autoregressive 방식으로 생성한다. 즉, 다음 아이템의 Semantic ID $\left(c_{n+1,0}, c_{n+1,1}, \ldots, c_{n+1, m-1}\right)$를 한 codeword씩 차례로 생성한다 :</li>
+</ol>
+
+\[P\left(c_{n+1, i} \mid c_1, c_2, \ldots, c_n, c_{n+1,0}, \ldots, c_{n+1, i-1}\right)\]
+
+<ol>
+  <li>생성된 Semantic ID를 룩업 테이블을 통해 실제 아이템으로 변환하여 사용자에게 추천한다.</li>
+</ol>
+
+<p>이러한 생성형 접근법의 주요 장점은 단일 단계 생성 프로세스를 통해 기존의 이중 단계 검색보다 효율적이고, Semantic ID를 통해 아이템 간의 의미론적 관계를 활용할 수 있으며, 새로운 아이템에 대해서도 효과적인 추천이 가능하다는 점이다.</p>
+
+<h2 id="5-tiger의-한계점-및-개선-방향">5. TIGER의 한계점 및 개선 방향</h2>
+
+<ul>
+  <li>Semantic ID의 콘텐츠 의존성 : Semantic ID의 품질은 아이템의 콘텐츠 특성의 품질에 크게 의존한다. 콘텐츠 정보가 부족하거나 품질이 낮은 경우, Semantic ID의 품질과 추천 성능이 저하될 수 있다. 또한 텍스트 특성에만 의존하는 현재의 구현은 이미지, 오디오 등 다양한 모달리티의 데이터를 충분히 활용하지 못한다.</li>
+  <li>계산 복잡성 : RQ-VAE와 Transformer 모델을 모두 훈련해야 하므로, 기존 방법에 비해 계산 비용이 증가할 수 있다. 특히, 대규모 아이템 카탈로그를 처리할 때 계산 효율성이 문제가 될 수 있다.</li>
+  <li>대규모 아이템 카탈로그 처리 : 아이템 수가 매우 많은 경우, Semantic ID의 고유성과 효율성을 유지하기 어려울 수 있다. Codebook 크기와 codeword 수를 확장하면서도 효율성을 유지하는 방법을 연구할 필요가 있다.</li>
+  <li>검색과 추천의 통합 : 현재 TIGER는 추천에 초점을 맞추고 있지만, 실제 응용에서는 검색과 추천이 밀접하게 연관되어 있다. 두 작업을 효과적으로 통합하여 시너지 효과를 창출할 수 있는 방법을 연구할 필요가 있다.</li>
+</ul>
+
+<h2 id="6-결론-및-향후-연구-방향">6. 결론 및 향후 연구 방향</h2>
+
+<p>TIGER 프레임워크는 추천 시스템 분야에 생성형 검색이라는 새로운 패러다임을 도입하여, 기존 접근법의 한계를 극복하고 특히 콜드 스타트 문제에서 큰 개선을 이루었다. 그러나 위에서 제기된 문제점들이 여전히 존재한다.</p>
+
+<p>향후 연구에서는 기대되는 주제들은 다음과 같다.</p>
+
+<ul>
+  <li>다중 모달 데이터 통합</li>
+  <li>검색과 추천의 효과적인 통합</li>
+  <li>효율적인 양자화 기법</li>
+  <li>선호도 정렬</li>
+  <li>대규모 언어 모델과의 통합</li>
+</ul>
+
+</article>
+
+</div>
+<footer>
+    <p>&copy; 2025 Tech Blog. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

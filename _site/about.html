@@ -2,16 +2,10 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8">
-    <title>{{ page.title }} - {{ site.title }}</title>
+    <title>About - Tech Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <link rel="stylesheet" href="/assets/css/style.css">
 
-<<<<<<< HEAD
-    {% if page.use_math %}
-        {% include mathjax_support.html %}
-    {% endif %}
-
-=======
     <!-- MathJax 설정 -->
     <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -22,13 +16,27 @@
     });
   </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
->>>>>>> 6fcd26d (tiger init commit)
 </head>
 <body>
-{% include header.html %}
+<header>
+    <h1><a href="/">Tech Blog</a></h1>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about.html">About</a></li>
+        </ul>
+    </nav>
+</header>
+
 <div class="container">
-    {{ content }}
+    <h2 id="about-this-blog">About this Blog</h2>
+
+<p>이 블로그는 컴퓨터 과학 관련 논문들을 분석하여 정리한 개인 블로그입니다.</p>
+
 </div>
-{% include footer.html %}
+<footer>
+    <p>&copy; 2025 Tech Blog. All rights reserved.</p>
+</footer>
+
 </body>
 </html>
