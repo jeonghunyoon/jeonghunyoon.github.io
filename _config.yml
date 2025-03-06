@@ -1,13 +1,3 @@
-name: Jeonghun Yoon
-#markdown: kramdown
-permalink: /blog/:year/:month/:day/:title
-
-markdown: kramdown
-highlighter: rouge
-lsi: false
-excerpt_separator: "\n\n"
-incremental: false
-=======
 title: "Tech Blog"
 email: "jeonghun.yoon123@gmail.com"
 description: "개인 논문 분석 블로그입니다. 최신 컴퓨터 과학 논문에 대한 분석을 제공합니다."
